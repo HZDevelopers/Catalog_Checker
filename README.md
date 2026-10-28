@@ -1,63 +1,75 @@
+
 # Catalog Checker
 
-A small, dependency-free Python command-line tool that checks product catalog CSV files for common data-quality problems.
+A simple Python tool for validating product catalog CSV files.
 
-## What it checks
+## Features
 
-- Required columns: `sku`, `name`, `price`, and `image_url`
-- Empty SKU and product names
-- Duplicate SKUs
-- Missing, non-numeric, or negative prices
-- Missing image URLs and URLs that do not start with `http://` or `https://`
+- Checks for required columns: `sku`, `name`, `price`, and `image_url`.
+- Detects duplicate SKUs.
+- Identifies missing or invalid product information.
+- Checks for invalid and negative prices.
+- Validates image URL formats.
+- Supports JSON output for validation results.
+- Includes automated unit tests.
 
 ## Requirements
 
-- Python 3.10 or newer
-- No third-party packages required
+- Python 3.10 or newer recommended.
+- No third-party packages required.
 
-## Quick start
+## Installation
 
-Clone the repository, then run:
+1. Download or clone this repository.
+2. Open a terminal in the project directory.
+3. Verify Python is installed:
+
+   ```bash
+   python --version
+   ```
+
+## Usage
+
+Validate the example product catalog:
 
 ```bash
 python catalog_checker.py examples/products.csv
 ```
 
-To receive machine-readable output:
+Display validation results in JSON format:
 
 ```bash
 python catalog_checker.py examples/products.csv --json
 ```
 
-Exit codes:
-- `0`: no issues found
-- `1`: validation issues found
-- `2`: the file could not be read
+The tool reports validation issues with the row number, field name, and issue type. If the catalog is valid, it reports that no issues were found.
 
-## CSV format
+## CSV Format
 
-The header row must contain these columns (column names are case-insensitive):
+Your CSV file should include these columns:
 
 ```csv
 sku,name,price,image_url
-SKU-001,USB-C Cable,9.99,https://example.com/cable.jpg
-SKU-002,Desk Stand,24.50,https://example.com/stand.jpg
+A001,USB Cable,500,https://example.com/usb.jpg
+A002,Phone Stand,800,https://example.com/stand.jpg
 ```
 
-## Run tests
+Replace the sample values with your own product data.
+
+## Running Tests
+
+Run the automated test suite from the project directory:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-## Limitations
-
-This tool validates CSV structure and basic values only. It does not download image URLs, verify that a product exists, or connect to any store platform.
+The tests cover valid catalogs, duplicate SKUs, invalid prices, invalid image URLs, and missing required columns.
 
 ## Contributing
 
-Issues and pull requests are welcome. Please include a focused test for bug fixes and new validation rules.
+Contributions, bug reports, and suggestions are welcome. Please test your changes before submitting a pull request.
 
 ## License
 
-Released under the MIT License. See [LICENSE](LICENSE).
+See the `LICENSE` file for license information.
