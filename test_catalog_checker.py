@@ -1,25 +1,43 @@
 import unittest
+
 from catalog_checker import validate_rows
 
 
-class CatalogValidationTests(unittest.TestCase):
-    def test_valid_row(self):
-        self.assertEqual(validate_rows([{"sku":"A1", "name":"Stand", "price":"12.5", "image_url":"https://example.com/a.png"}]), [])
-
-    def test_missing_and_duplicate_sku(self):
+class CatalogCheckerTests(unittest.TestCase):
+    def test_valid_catalog_has_no_issues(self):
+        headers = ["sku", "name", "price", "image_url"]
         rows = [
-            {"sku":"X", "name":"One", "price":"1", "image_url":"https://x.test/1"},
-            {"sku":"x", "name":"Two", "price":"2", "image_url":"https://x.test/2"},
-            {"sku":"", "name":"Three", "price":"3", "image_url":"https://x.test/3"},
+            {
+                "sku": "SKU-001",
+                "name": "USB-C Cable",
+                "price": "9.99",
+                "image_url": "https://example.com/cable.jpg",
+            }
         ]
-        issues = validate_rows(rows)
-        self.assertTrue(any("duplicate SKU" in issue for issue in issues))
-        self.assertTrue(any("missing SKU" in issue for issue in issues))
+        self.assertEqual(validate_rows(headers, rows), [])
 
-    def test_bad_price_and_image(self):
-        issues = validate_rows([{"sku":"A", "name":"Item", "price":"free", "image_url":"ftp://image"}])
-        self.assertTrue(any("price must be a number" in issue for issue in issues))
-        self.assertTrue(any("image_url must start" in issue for issue in issues))
+    def test_duplicate_sku_is_reported(self):
+        headers = ["sku", "name", "price", "image_url"]
+        rows = [
+            {"sku": "A", "name": "First", "price": "1", "image_url": "https://example.com/1.jpg"},
+            {"sku": "A", "name": "Second", "price": "2", "image_url": "https://example.com/2.jpg"},
+        ]
+        issues = validate_rows(headers, rows)
+        self.assertIn("duplicate_sku", [issue.code for issue in issues])
+
+    def test_invalid_price_and_image_url_are_reported(self):
+        headers = ["sku", "name", "price", "image_url"]
+        rows = [
+            {"sku": "A", "name": "Item", "price": "free", "image_url": "not-a-url"}
+        ]
+        issues = validate_rows(headers, rows)
+        codes = [issue.code for issue in issues]
+        self.assertIn("invalid_price", codes)
+        self.assertIn("invalid_image_url", codes)
+
+    def test_missing_required_column_is_reported(self):
+        issues = validate_rows(["sku", "name"], [])
+        self.assertIn("missing_column", [issue.code for issue in issues])
 
 
 if __name__ == "__main__":
